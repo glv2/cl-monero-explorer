@@ -5,4 +5,12 @@
 
 
 (defpackage :monero-explorer
-  (:use :cl))
+  (:use :cl)
+  (:import-from :monero-tools
+                #:deserialize-transaction-prefix
+                #:geta
+                #:hex-string->bytes)
+  (:import-from :monero-tools-daemon-rpc
+                #:get-block
+                #:get-transactions)
+  (:export #:gui))

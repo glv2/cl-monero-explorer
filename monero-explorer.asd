@@ -12,7 +12,10 @@
   :version "0.1"
   :author "Guillaume LE VAILLANT"
   :license "GPL-3"
-  :depends-on ("monero-tools"
+  :depends-on ("mcclim"
+               "monero-tools"
                "monero-tools-rpc")
   :components ((:module "src"
-                :components ((:file "package")))))
+                :components ((:file "gui-mcclim" :depends-on ("lookup" "package"))
+                             (:file "lookup" :depends-on ("package"))
+                             (:file "package")))))
