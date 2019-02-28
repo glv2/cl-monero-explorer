@@ -16,4 +16,5 @@
                 #:*rpc-port*
                 #:get-block
                 #:get-transactions)
-  (:export #:gui))
+  (:export #:gui
+           #:gui-ltk))
