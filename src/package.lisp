@@ -12,6 +12,8 @@
                 #:geta
                 #:hex-string->bytes)
   (:import-from :monero-tools-daemon-rpc
+                #:*rpc-host*
+                #:*rpc-port*
                 #:get-block
                 #:get-transactions)
   (:export #:gui))

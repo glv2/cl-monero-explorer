@@ -11,6 +11,10 @@
   ((query-result :initform '(:empty) :accessor query-result))
   (:menu-bar nil)
   (:panes
+   (host-label :label :label "Host" :max-width 50)
+   (host :text-field :value "127.0.0.1")
+   (port-label :label :label "Port" :max-width 50)
+   (port :text-field :value "18081" :width 100 :max-width 100)
    (query :text-field
           ;;:value "da6ce65f5e0f6e6d46b15fe39613075aba744eb8e30bfee8dd44d9019a941ea1"
           :value "099cc5ce99357a7946b52fd36eafdaef1851b6ede17fce0b05843ae26827692a"
@@ -25,6 +29,12 @@
   (:layouts
    (default (clim:vertically (:height 800)
               (clim:spacing (:thickness 5)
+                (clim:horizontally (:spacing 20)
+                  (clim:horizontally (:spacing 10)
+                    host-label host)
+                  (clim:horizontally (:spacing 10)
+                    port-label port)))
+              (clim:spacing (:thickness 5)
                 (clim:horizontally (:width 950 :spacing 5)
                   (clim:spacing (:thickness 5) query)
                   lookup))
@@ -32,6 +42,8 @@
 
 (defun lookup (pane)
   (let* ((frame (clim:pane-frame pane))
+         (*rpc-host* (clim:gadget-value (clim:find-pane-named frame 'host)))
+         (*rpc-port* (clim:gadget-value (clim:find-pane-named frame 'port)))
          (query (clim:gadget-value (clim:find-pane-named frame 'query))))
     (multiple-value-bind (height length) (parse-integer query :junk-allowed t)
       (let* ((id (if (= length (length query)) height query))
