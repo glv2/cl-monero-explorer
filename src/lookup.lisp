@@ -4,7 +4,20 @@
 ;;;; See the file LICENSE for terms of use and distribution.
 
 
-(in-package :monero-explorer)
+(defpackage :monero-explorer-common
+  (:use :cl)
+  (:import-from :monero-tools
+                #:bytes->hex-string
+                #:deserialize-transaction-prefix
+                #:geta
+                #:hex-string->bytes)
+  (:import-from :monero-tools-daemon-rpc
+                #:get-block
+                #:get-transactions)
+  (:export #:lookup-block
+           #:lookup-transaction))
+
+(in-package :monero-explorer-common)
 
 
 (defun lookup-block (id)
@@ -51,8 +64,3 @@
                            (bytes->hex-string (geta (geta output :target) :key))))
                    (geta prefix :outputs))
               (geta prefix :extra))))))
-
-;; (defun get-transaction-pool ()
-;;   (let ((result (monero-tools-daemon-rpc:get-transaction-pool-hashes)))
-;;     (when result
-;;       (geta result :tx-hashes))))

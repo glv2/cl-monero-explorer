@@ -4,7 +4,17 @@
 ;;;; See the file LICENSE for terms of use and distribution.
 
 
-(in-package :monero-explorer)
+(defpackage :monero-explorer-mcclim
+  (:use :cl)
+  (:import-from :monero-explorer-common
+                #:lookup-block
+                #:lookup-transaction)
+  (:import-from :monero-tools-daemon-rpc
+                #:*rpc-host*
+                #:*rpc-port*)
+  (:export #:gui))
+
+(in-package :monero-explorer-mcclim)
 
 
 (clim:define-application-frame explorer-frame ()
@@ -17,7 +27,8 @@
    (port :text-field :value "18081" :width 100 :max-width 100)
    (query :text-field
           ;;:value "da6ce65f5e0f6e6d46b15fe39613075aba744eb8e30bfee8dd44d9019a941ea1"
-          :value "099cc5ce99357a7946b52fd36eafdaef1851b6ede17fce0b05843ae26827692a"
+          ;;:value "099cc5ce99357a7946b52fd36eafdaef1851b6ede17fce0b05843ae26827692a"
+          :value "Enter hash or height"
           :activate-callback #'lookup)
    (lookup :push-button
            :max-width 50
@@ -71,12 +82,6 @@
                          hash height prev-hash major-version minor-version
                          block-size nonce timestamp reward miner-tx-hash
                          tx-hashes)))
-      ;; (rect (clim:bounding-rectangle (clim:sheet-region pane)))
-      ;; (width (clim:rectangle-width rect))
-      ;; (height (clim:rectangle-height rect)))
-      ;; (clim:draw-rectangle* pane 0 0 width (floor height 2) :filled nil)
-      ;; (clim:with-output-as-gadget (pane)
-      ;;   (clim:make-pane 'clim:text-field :value "test"))
       (clim:draw-text* pane text 2 0))))
 
 (defun display-transaction (pane info)

@@ -6,18 +6,13 @@
 
 (cl:in-package :asdf-user)
 
-(defsystem "monero-explorer"
-  :name "monero-explorer"
+(defsystem "monero-explorer-common"
+  :name "monero-explorer-common"
   :description "Blockchain explorer for the Monero crypto-currency"
   :version "0.1"
   :author "Guillaume LE VAILLANT"
   :license "GPL-3"
-  :depends-on ("ltk"
-               "mcclim"
-               "monero-tools"
+  :depends-on ("monero-tools"
                "monero-tools-rpc")
   :components ((:module "src"
-                :components ((:file "gui-ltk" :depends-on ("lookup" "package"))
-                             (:file "gui-mcclim" :depends-on ("lookup" "package"))
-                             (:file "lookup" :depends-on ("package"))
-                             (:file "package")))))
+                :components ((:file "lookup")))))

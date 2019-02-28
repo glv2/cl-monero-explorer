@@ -4,10 +4,20 @@
 ;;;; See the file LICENSE for terms of use and distribution.
 
 
-(in-package :monero-explorer)
+(defpackage :monero-explorer-ltk
+  (:use :cl)
+  (:import-from :monero-explorer-common
+                #:lookup-block
+                #:lookup-transaction)
+  (:import-from :monero-tools-daemon-rpc
+                #:*rpc-host*
+                #:*rpc-port*)
+  (:export #:gui))
+
+(in-package :monero-explorer-ltk)
 
 
-(defun display-block-ltk (result info)
+(defun display-block (result info)
   (destructuring-bind (block-size hash height major-version minor-version
                        nonce prev-hash reward timestamp
                        miner-tx-hash tx-hashes)
@@ -29,7 +39,7 @@
       (ltk:clear-text result)
       (ltk:append-text result text))))
 
-(defun display-transaction-ltk (result info)
+(defun display-transaction (result info)
   (destructuring-bind (block-height block-timestamp double-spend-seen
                        in-pool version unlock-time inputs outputs extra)
       info
@@ -67,63 +77,63 @@
         (ltk:clear-text result)
         (ltk:append-text result text)))))
 
-(defun display-not-found-ltk (result)
+(defun display-not-found (result)
   (ltk:clear-text result)
   (ltk:append-text result "No information found"))
 
-(defun gui-ltk ()
-  (declare (optimize (debug 3)))
+(defun lookup (host port query result)
+  (let* ((*rpc-host* (ltk:text host))
+         (*rpc-port* (ltk:text port))
+         (query (ltk:text query)))
+    (multiple-value-bind (height length)
+        (parse-integer query :junk-allowed t)
+      (let* ((id (if (= length (length query)) height query))
+             (info (or (ignore-errors (lookup-block id))
+                       (ignore-errors (lookup-transaction id)))))
+        (case (car info)
+          ((:block) (display-block result (cdr info)))
+          ((:transaction) (display-transaction result (cdr info)))
+          (t (display-not-found result)))))))
+
+(defun set-title (title)
+  (ltk:format-wish (format nil "wm title \".\" {~a}" title)))
+
+(defun gui ()
   (ltk:with-ltk ()
-    (flet ((lookup (host port query result)
-             (let* ((*rpc-host* (ltk:text host))
-                    (*rpc-port* (ltk:text port))
-                    (query (ltk:text query)))
-               (multiple-value-bind (height length)
-                   (parse-integer query :junk-allowed t)
-                 (let* ((id (if (= length (length query)) height query))
-                        (info (or (ignore-errors (lookup-block id))
-                                  (ignore-errors (lookup-transaction id)))))
-                   (case (car info)
-                     ((:block)
-                      (display-block-ltk result (cdr info)))
-                     ((:transaction)
-                      (display-transaction-ltk result (cdr info)))
-                     (t
-                      (display-not-found-ltk result))))))))
-      (let* ((frame1 (make-instance 'ltk:frame))
-             (host-label (make-instance 'ltk:label
-                                        :master frame1
-                                        :text "Host:"))
-             (host (make-instance 'ltk:entry
-                                  :master frame1
-                                  :text "127.0.0.1"))
-             (port-label (make-instance 'ltk:label
-                                        :master frame1
-                                        :text "Port:"))
-             (port (make-instance 'ltk:entry
-                                  :master frame1
-                                  :text "18081"))
-             (frame2 (make-instance 'ltk:frame))
-             (query (make-instance 'ltk:entry
-                                   :master frame2
-                                   :text "Enter hash or height"))
-             (result (make-instance 'ltk:text
-                                    :width 100))
-             (lookup (make-instance 'ltk:button
-                                    :master frame2
-                                    :text "Lookup"
-                                    :command (lambda ()
-                                               (lookup host port query result)))))
-        (ltk:format-wish "wm title \".\" {Monero Explorer}")
-        (ltk:bind query "<Return>" (lambda (event)
-                                     (declare (ignore event))
-                                     (lookup host port query result)))
-        (ltk:pack frame1 :expand t :fill :x :pady 5)
-        (ltk:pack host-label :side :left :padx 5)
-        (ltk:pack host :side :left :expand t :fill :x :padx 5)
-        (ltk:pack port-label :side :left :padx 5)
-        (ltk:pack port :side :left :padx 5)
-        (ltk:pack frame2 :expand t :fill :x :pady 5)
-        (ltk:pack query :side :left :expand t :fill :x :padx 5)
-        (ltk:pack lookup :side :left :padx 5)
-        (ltk:pack result)))))
+    (let* ((frame1 (make-instance 'ltk:frame))
+           (host-label (make-instance 'ltk:label
+                                      :master frame1
+                                      :text "Host:"))
+           (host (make-instance 'ltk:entry
+                                :master frame1
+                                :text "127.0.0.1"))
+           (port-label (make-instance 'ltk:label
+                                      :master frame1
+                                      :text "Port:"))
+           (port (make-instance 'ltk:entry
+                                :master frame1
+                                :text "18081"))
+           (frame2 (make-instance 'ltk:frame))
+           (query (make-instance 'ltk:entry
+                                 :master frame2
+                                 :text "Enter hash or height"))
+           (result (make-instance 'ltk:text
+                                  :width 100))
+           (lookup (make-instance 'ltk:button
+                                  :master frame2
+                                  :text "Lookup"
+                                  :command (lambda ()
+                                             (lookup host port query result)))))
+      (set-title "Monero Explorer")
+      (ltk:bind query "<Return>" (lambda (event)
+                                   (declare (ignore event))
+                                   (lookup host port query result)))
+      (ltk:pack frame1 :expand t :fill :x :pady 5)
+      (ltk:pack host-label :side :left :padx 5)
+      (ltk:pack host :side :left :expand t :fill :x :padx 5)
+      (ltk:pack port-label :side :left :padx 5)
+      (ltk:pack port :side :left :padx 5)
+      (ltk:pack frame2 :expand t :fill :x :pady 5)
+      (ltk:pack query :side :left :expand t :fill :x :padx 5)
+      (ltk:pack lookup :side :left :padx 5)
+      (ltk:pack result))))
