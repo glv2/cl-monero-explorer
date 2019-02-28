@@ -12,7 +12,8 @@
   (:menu-bar nil)
   (:panes
    (query :text-field
-          :value "da6ce65f5e0f6e6d46b15fe39613075aba744eb8e30bfee8dd44d9019a941ea1"
+          ;;:value "da6ce65f5e0f6e6d46b15fe39613075aba744eb8e30bfee8dd44d9019a941ea1"
+          :value "099cc5ce99357a7946b52fd36eafdaef1851b6ede17fce0b05843ae26827692a"
           :activate-callback #'lookup)
    (lookup :push-button
            :max-width 50
@@ -44,49 +45,64 @@
                        nonce prev-hash reward timestamp
                        miner-tx-hash tx-hashes)
       info
-    (let* ((text (format nil "
-Block: ~a
-Height: ~d
-Previous block: ~a
-Version: ~d.~d
-Size: ~d
-Nonce: ~d
-Timestamp: ~d
-Reward: ~d
-Miner transaction: ~a
-Transactions: ~%~{~4t~a~%~}
-"
+    (let* ((text (format nil
+                         "~%Block: ~a~
+                          ~%Height: ~d~
+                          ~%Previous block: ~a~
+                          ~%Version: ~d.~d~
+                          ~%Size: ~d~
+                          ~%Nonce: ~d~
+                          ~%Timestamp: ~d~
+                          ~%Reward: ~d~
+                          ~2%Miner transaction:~2%~4t~a~
+                          ~2%Transactions:~2%~{~4t~a~%~}"
                          hash height prev-hash major-version minor-version
                          block-size nonce timestamp reward miner-tx-hash
                          tx-hashes)))
-           ;; (rect (clim:bounding-rectangle (clim:sheet-region pane)))
-           ;; (width (clim:rectangle-width rect))
-           ;; (height (clim:rectangle-height rect)))
+      ;; (rect (clim:bounding-rectangle (clim:sheet-region pane)))
+      ;; (width (clim:rectangle-width rect))
+      ;; (height (clim:rectangle-height rect)))
       ;; (clim:draw-rectangle* pane 0 0 width (floor height 2) :filled nil)
+      ;; (clim:with-output-as-gadget (pane)
+      ;;   (clim:make-pane 'clim:text-field :value "test"))
       (clim:draw-text* pane text 2 0))))
 
 (defun display-transaction (pane info)
   (destructuring-bind (block-height block-timestamp double-spend-seen
                        in-pool version unlock-time inputs outputs extra)
       info
-    (let ((text (format nil "
-Block height: ~d
-Block timestamp: ~d
-Version: ~d
-In pool: ~:[No~;Yes~]
-Double spend seen: ~:[No~;Yes~]
-Unlock time: ~d
-Extra: ~a
-Inputs: ~d
-~a
-Outputs: ~d
-~a
-"
-                        block-height block-timestamp version in-pool
-                        double-spend-seen unlock-time extra
-                        (length inputs) inputs
-                        (length outputs) outputs)))
-      (clim:draw-text* pane text 2 0))))
+    (flet ((print-input (input)
+             (destructuring-bind (amount key-offsets key-image) input
+               (format nil
+                       "~%~4tAmount: ~d~
+                        ~%~4tKey offsets: ~{~a~^, ~}~
+                        ~%~4tKey image: ~a"
+                       amount key-offsets key-image)))
+           (print-output (output)
+             (destructuring-bind (amount key) output
+               (format nil
+                       "~%~4tAmount: ~d~
+                        ~%~4tKey: ~a"
+                       amount key))))
+      (let ((text (format nil
+                          "~%Block height: ~d~
+                           ~%Block timestamp: ~d~
+                           ~%Version: ~d~
+                           ~%In pool: ~:[No~;Yes~]~
+                           ~%Double spend seen: ~:[No~;Yes~]~
+                           ~%Unlock time: ~d~
+                           ~2%Extra: ~a~
+                           ~2%Inputs: ~d~
+                           ~%~{~a~%~}~
+                           ~%Outputs: ~d~
+                           ~%~{~a~%~}"
+                          block-height block-timestamp version in-pool
+                          double-spend-seen unlock-time extra
+                          (length inputs)
+                          (mapcar #'print-input inputs)
+                          (length outputs)
+                          (mapcar #'print-output outputs))))
+        (clim:draw-text* pane text 2 0)))))
 
 (defun display-not-found (pane)
   (let ((text (format nil "~%No information found")))

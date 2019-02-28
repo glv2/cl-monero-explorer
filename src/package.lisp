@@ -7,6 +7,7 @@
 (defpackage :monero-explorer
   (:use :cl)
   (:import-from :monero-tools
+                #:bytes->hex-string
                 #:deserialize-transaction-prefix
                 #:geta
                 #:hex-string->bytes)

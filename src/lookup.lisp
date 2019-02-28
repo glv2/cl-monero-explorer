@@ -38,20 +38,18 @@
               (geta transaction :in-pool)
               (geta prefix :version)
               (geta prefix :unlock-time)
-              ;; (map 'list
-              ;;      (lambda (input)
-              ;;        (let ((k (geta input :key)))
-              ;;          (list (geta k :amount)
-              ;;                (geta k :key-offsets)
-              ;;                (geta k :key-image))))
-              ;;      (geta prefix :inputs))
-              (geta prefix :inputs)
-              ;; (map 'list
-              ;;      (lambda (output)
-              ;;        (list (geta output :amount)
-              ;;              (geta (geta output :target) :key)))
-              ;;      (geta prefix :outputs))
-              (geta prefix :outputs)
+              (map 'list
+                   (lambda (input)
+                     (let ((k (geta input :key)))
+                       (list (geta k :amount)
+                             (coerce (geta k :key-offsets) 'list)
+                             (bytes->hex-string (geta k :key-image)))))
+                   (geta prefix :inputs))
+              (map 'list
+                   (lambda (output)
+                     (list (geta output :amount)
+                           (bytes->hex-string (geta (geta output :target) :key))))
+                   (geta prefix :outputs))
               (geta prefix :extra))))))
 
 ;; (defun get-transaction-pool ()
