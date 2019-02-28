@@ -51,13 +51,15 @@
               (geta transaction :in-pool)
               (geta prefix :version)
               (geta prefix :unlock-time)
-              (map 'list
-                   (lambda (input)
-                     (let ((k (geta input :key)))
-                       (list (geta k :amount)
-                             (coerce (geta k :key-offsets) 'list)
-                             (bytes->hex-string (geta k :key-image)))))
-                   (geta prefix :inputs))
+              (remove nil
+                      (map 'list
+                           (lambda (input)
+                             (let ((k (geta input :key)))
+                               (when k
+                                 (list (geta k :amount)
+                                       (coerce (geta k :key-offsets) 'list)
+                                       (bytes->hex-string (geta k :key-image))))))
+                           (geta prefix :inputs)))
               (map 'list
                    (lambda (output)
                      (list (geta output :amount)

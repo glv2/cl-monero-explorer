@@ -82,9 +82,9 @@
   (ltk:append-text result "No information found"))
 
 (defun lookup (host port query result)
-  (let* ((*rpc-host* (ltk:text host))
-         (*rpc-port* (ltk:text port))
-         (query (ltk:text query)))
+  (let ((*rpc-host* (ltk:text host))
+        (*rpc-port* (ltk:text port))
+        (query (ltk:text query)))
     (multiple-value-bind (height length)
         (parse-integer query :junk-allowed t)
       (let* ((id (if (= length (length query)) height query))
