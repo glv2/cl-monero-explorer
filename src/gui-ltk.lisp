@@ -79,9 +79,14 @@
         (ltk:clear-text result)
         (ltk:append-text result text)))))
 
-(defun display-not-found (result)
-  (ltk:clear-text result)
-  (ltk:append-text result "No information found"))
+(defun display-not-found (result error-block error-transaction)
+  (let ((text (format nil
+                      "~%No information found~
+                       ~%~%Block request: ~a~
+                       ~%~%Transaction request: ~a"
+                      error-block error-transaction)))
+    (ltk:clear-text result)
+    (ltk:append-text result text)))
 
 (defun lookup (host port user password query result)
   (let ((*rpc-host* (ltk:text host))
@@ -91,13 +96,16 @@
         (query (ltk:text query)))
     (multiple-value-bind (height length)
         (parse-integer query :junk-allowed t)
-      (let* ((id (if (= length (length query)) height query))
-             (info (or (ignore-errors (lookup-block id))
-                       (ignore-errors (lookup-transaction id)))))
-        (case (car info)
-          ((:block) (display-block result (cdr info)))
-          ((:transaction) (display-transaction result (cdr info)))
-          (t (display-not-found result)))))))
+      (let ((id (if (= length (length query)) height query)))
+        (multiple-value-bind (info error1)
+            (ignore-errors (lookup-block id))
+          (if info
+              (display-block result (cdr info))
+              (multiple-value-bind (info error2)
+                  (ignore-errors (lookup-transaction id))
+                (if info
+                    (display-transaction result (cdr info))
+                    (display-not-found result error1 error2)))))))))
 
 (defun set-title (title)
   (ltk:format-wish (format nil "wm title \".\" {~a}" title)))

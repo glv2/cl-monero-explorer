@@ -69,10 +69,16 @@
          (*rpc-password* (clim:gadget-value (clim:find-pane-named frame 'password)))
          (query (clim:gadget-value (clim:find-pane-named frame 'query))))
     (multiple-value-bind (height length) (parse-integer query :junk-allowed t)
-      (let* ((id (if (= length (length query)) height query))
-             (info (or (ignore-errors (lookup-block id))
-                       (ignore-errors (lookup-transaction id)))))
-        (setf (query-result frame) info)
+      (let ((id (if (= length (length query)) height query)))
+        (multiple-value-bind (info error1)
+            (ignore-errors (lookup-block id))
+          (if info
+              (setf (query-result frame) info)
+              (multiple-value-bind (info error2)
+                  (ignore-errors (lookup-transaction id))
+                (if info
+                    (setf (query-result frame) info)
+                    (setf (query-result frame) (list :error error1 error2))))))
         (clim:redisplay-frame-pane frame 'result)))))
 
 (defun display-block (pane info)
@@ -133,9 +139,15 @@
                           (mapcar #'print-output outputs))))
         (clim:draw-text* pane text 2 0)))))
 
-(defun display-not-found (pane)
-  (let ((text (format nil "~%No information found")))
-    (clim:draw-text* pane text 2 0)))
+(defun display-not-found (pane info)
+  (destructuring-bind (error-block error-transaction)
+      info
+    (let ((text (format nil
+                        "~%No information found~
+                         ~%~%Block request: ~a~
+                         ~%~%Transaction request: ~a"
+                        error-block error-transaction)))
+      (clim:draw-text* pane text 2 0))))
 
 (defun display-result (frame stream)
   (declare (ignore stream))
@@ -144,8 +156,7 @@
     (case (car info)
       ((:block) (display-block result (cdr info)))
       ((:transaction) (display-transaction result (cdr info)))
-      ((:empty))
-      (t (display-not-found result)))))
+      ((:error) (display-not-found result (cdr info))))))
 
 (defun gui ()
   (let ((frame (clim:make-application-frame 'explorer-frame
