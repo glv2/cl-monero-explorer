@@ -140,7 +140,9 @@
            (query (make-instance 'nodgui:entry
                                  :master frame2
                                  :text "Enter hash or height"))
-           (result (make-instance 'nodgui:text :xscroll t :yscroll t))
+           (result (make-instance 'nodgui:text
+                                  :xscroll t
+                                  :yscroll t))
            (lookup (make-instance 'nodgui:button
                                   :master frame2
                                   :text "Lookup"
