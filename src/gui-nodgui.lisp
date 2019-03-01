@@ -149,11 +149,11 @@
                                                      user password
                                                      query result)))))
       (nodgui:wm-title nodgui:*tk* "Monero Explorer")
-      (nodgui:bind query #$<Return>$ (lambda (event)
-                                       (declare (ignore event))
-                                       (lookup host port
-                                               user password
-                                               query result)))
+      (let ((lkp (lambda (event)
+                   (declare (ignore event))
+                   (lookup host port user password query result))))
+        (nodgui:bind query #$<Return>$ lkp)
+        (nodgui:bind query #$<KP_Enter>$ lkp))
       (nodgui:pack frame1 :expand t :fill :x :pady 5)
       (nodgui:pack host-label :side :left :padx 5)
       (nodgui:pack host :side :left :expand t :fill :x :padx 5)

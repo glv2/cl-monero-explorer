@@ -151,11 +151,11 @@
                                                      user password
                                                      query result)))))
       (set-title "Monero Explorer")
-      (ltk:bind query "<Return>" (lambda (event)
-                                   (declare (ignore event))
-                                   (lookup host port
-                                           user password
-                                           query result)))
+      (let ((lkp (lambda (event)
+                   (declare (ignore event))
+                   (lookup host port user password query result))))
+        (ltk:bind query "<Return>" lkp)
+        (ltk:bind query "<KP_Enter>" lkp))
       (ltk:pack frame1 :expand t :fill :x :pady 5)
       (ltk:pack host-label :side :left :padx 5)
       (ltk:pack host :side :left :expand t :fill :x :padx 5)
