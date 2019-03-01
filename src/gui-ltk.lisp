@@ -9,9 +9,11 @@
   (:import-from :monero-explorer-common
                 #:lookup-block
                 #:lookup-transaction)
-  (:import-from :monero-tools-daemon-rpc
+  (:import-from :monero-tools-rpc
                 #:*rpc-host*
-                #:*rpc-port*)
+                #:*rpc-password*
+                #:*rpc-port*
+                #:*rpc-user*)
   (:export #:gui))
 
 (in-package :monero-explorer-ltk)
@@ -81,9 +83,11 @@
   (ltk:clear-text result)
   (ltk:append-text result "No information found"))
 
-(defun lookup (host port query result)
+(defun lookup (host port user password query result)
   (let ((*rpc-host* (ltk:text host))
         (*rpc-port* (ltk:text port))
+        (*rpc-user* (ltk:text user))
+        (*rpc-password* (ltk:text password))
         (query (ltk:text query)))
     (multiple-value-bind (height length)
         (parse-integer query :junk-allowed t)
@@ -113,27 +117,47 @@
            (port (make-instance 'ltk:entry
                                 :master frame1
                                 :text "18081"))
+           (user-label (make-instance 'ltk:label
+                                      :master frame1
+                                      :text "User:"))
+           (user (make-instance 'ltk:entry
+                                :master frame1
+                                :text ""))
+           (password-label (make-instance 'ltk:label
+                                          :master frame1
+                                          :text "Password:"))
+           (password (make-instance 'ltk:entry
+                                    :master frame1
+                                    :text ""
+                                    :show #\*))
            (frame2 (make-instance 'ltk:frame))
            (query (make-instance 'ltk:entry
                                  :master frame2
                                  :text "Enter hash or height"))
-           (result (make-instance 'ltk:text
-                                  :width 100))
+           (result (make-instance 'ltk:text :xscroll t :yscroll t))
            (lookup (make-instance 'ltk:button
                                   :master frame2
                                   :text "Lookup"
                                   :command (lambda ()
-                                             (lookup host port query result)))))
+                                             (lookup host port
+                                                     user password
+                                                     query result)))))
       (set-title "Monero Explorer")
       (ltk:bind query "<Return>" (lambda (event)
                                    (declare (ignore event))
-                                   (lookup host port query result)))
+                                   (lookup host port
+                                           user password
+                                           query result)))
       (ltk:pack frame1 :expand t :fill :x :pady 5)
       (ltk:pack host-label :side :left :padx 5)
       (ltk:pack host :side :left :expand t :fill :x :padx 5)
       (ltk:pack port-label :side :left :padx 5)
       (ltk:pack port :side :left :padx 5)
+      (ltk:pack user-label :side :left :padx 5)
+      (ltk:pack user :side :left :padx 5)
+      (ltk:pack password-label :side :left :padx 5)
+      (ltk:pack password :side :left :padx 5)
       (ltk:pack frame2 :expand t :fill :x :pady 5)
       (ltk:pack query :side :left :expand t :fill :x :padx 5)
       (ltk:pack lookup :side :left :padx 5)
-      (ltk:pack result))))
+      (ltk:pack result :expand t :fill :both))))

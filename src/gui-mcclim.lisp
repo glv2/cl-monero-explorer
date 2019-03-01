@@ -9,9 +9,11 @@
   (:import-from :monero-explorer-common
                 #:lookup-block
                 #:lookup-transaction)
-  (:import-from :monero-tools-daemon-rpc
+  (:import-from :monero-tools-rpc
                 #:*rpc-host*
-                #:*rpc-port*)
+                #:*rpc-password*
+                #:*rpc-port*
+                #:*rpc-user*)
   (:export #:gui))
 
 (in-package :monero-explorer-mcclim)
@@ -21,10 +23,14 @@
   ((query-result :initform '(:empty) :accessor query-result))
   (:menu-bar nil)
   (:panes
-   (host-label :label :label "Host" :max-width 50)
+   (host-label :label :label "Host" :width 50 :max-width 50)
    (host :text-field :value "127.0.0.1")
-   (port-label :label :label "Port" :max-width 50)
+   (port-label :label :label "Port" :width 50 :max-width 50)
    (port :text-field :value "18081" :width 100 :max-width 100)
+   (user-label :label :label "User" :width 50 :max-width 50)
+   (user :text-field :value "" :width 150 :max-width 150)
+   (password-label :label :label "Password" :width 50 :max-width 50)
+   (password :text-field :value "" :width 150 :max-width 150)
    (query :text-field
           ;;:value "da6ce65f5e0f6e6d46b15fe39613075aba744eb8e30bfee8dd44d9019a941ea1"
           ;;:value "099cc5ce99357a7946b52fd36eafdaef1851b6ede17fce0b05843ae26827692a"
@@ -44,7 +50,11 @@
                   (clim:horizontally (:spacing 10)
                     host-label host)
                   (clim:horizontally (:spacing 10)
-                    port-label port)))
+                    port-label port)
+                  (clim:horizontally (:spacing 10)
+                    user-label user)
+                  (clim:horizontally (:spacing 10)
+                    password-label password)))
               (clim:spacing (:thickness 5)
                 (clim:horizontally (:width 950 :spacing 5)
                   (clim:spacing (:thickness 5) query)
@@ -55,6 +65,8 @@
   (let* ((frame (clim:pane-frame pane))
          (*rpc-host* (clim:gadget-value (clim:find-pane-named frame 'host)))
          (*rpc-port* (clim:gadget-value (clim:find-pane-named frame 'port)))
+         (*rpc-user* (clim:gadget-value (clim:find-pane-named frame 'user)))
+         (*rpc-password* (clim:gadget-value (clim:find-pane-named frame 'password)))
          (query (clim:gadget-value (clim:find-pane-named frame 'query))))
     (multiple-value-bind (height length) (parse-integer query :junk-allowed t)
       (let* ((id (if (= length (length query)) height query))
