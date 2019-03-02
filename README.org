@@ -1,1 +1,46 @@
 #+TITLE: Monero explorer
+
+This project contains several little GUIs to display some information about the
+[[https://www.getmonero.org][Monero]] blocks and transactions. It requires a running Monero daemon that can
+receive and answer to RPC requests.
+
+* Installation
+
+First, install [[https://www.quicklisp.org][Quicklisp]]. Then, put the [[https://github.com/glv2/cl-monero-tools][cl-monero-tools]] and [[https://github.com/glv2/cl-monero-explorer][cl-monero-explorer]]
+repositories in the /local-projects/ directory of Quicklisp.
+
+* GTK GUI
+
+#+BEGIN_SRC lisp
+(ql:quickload "monero-explorer-gtk")
+(monero-explorer-gtk:gui)
+#+END_SRC
+
+* LTK GUI
+
+#+BEGIN_SRC lisp
+(ql:quickload "monero-explorer-ltk")
+(monero-explorer-ltk:gui)
+#+END_SRC
+
+* McCLIM GUI
+
+#+BEGIN_SRC lisp
+(ql:quickload "monero-explorer-mcclim")
+(monero-explorer-mcclim:gui)
+#+END_SRC
+
+* Nodgui GUI
+
+#+BEGIN_SRC lisp
+(ql:quickload "monero-explorer-nodgui")
+(monero-explorer-nodgui:gui)
+#+END_SRC
+
+* Qt GUI
+
+#+BEGIN_SRC lisp
+(ql:quickload "monero-explorer-qt")
+(monero-explorer-qt:gui)
+#+END_SRC
+
