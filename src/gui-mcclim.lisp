@@ -118,7 +118,26 @@
                (format nil
                        "~%~4tAmount: ~d~
                         ~%~4tKey: ~a"
-                       amount key))))
+                       amount key)))
+           (print-extra (extra)
+             (destructuring-bind (transaction-public-key
+                                  additional-public-keys
+                                  payment-id)
+                 extra
+               (concatenate 'string
+                            (when (plusp (length transaction-public-key))
+                              (format nil
+                                      "~%Public key: ~a"
+                                      transaction-public-key))
+                            (when additional-public-keys
+                              (format nil
+                                      "~%Additional-public-keys:~
+                                       ~%~{~4t~a~^~%~}"
+                                      additional-public-keys))
+                            (when (plusp (length payment-id))
+                              (format nil
+                                      "~%Payment ID: ~a"
+                                      payment-id))))))
       (let ((text (format nil
                           "~%Block height: ~d~
                            ~%Block timestamp: ~d~
@@ -126,13 +145,14 @@
                            ~%In pool: ~:[No~;Yes~]~
                            ~%Double spend seen: ~:[No~;Yes~]~
                            ~%Unlock time: ~d~
-                           ~2%Extra: ~a~
+                           ~a~
                            ~2%Inputs: ~d~
-                           ~%~{~a~%~}~
+                           ~{~a~%~}~
                            ~%Outputs: ~d~
-                           ~%~{~a~%~}"
+                           ~{~a~%~}"
                           block-height block-timestamp version in-pool
-                          double-spend-seen unlock-time extra
+                          double-spend-seen unlock-time
+                          (print-extra extra)
                           (length inputs)
                           (mapcar #'print-input inputs)
                           (length outputs)
