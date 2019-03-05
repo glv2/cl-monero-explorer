@@ -20,7 +20,12 @@
 
 
 (clim:define-application-frame explorer-frame ()
-  ((query-result :initform '(:empty) :accessor query-result))
+  ((query-result :initform '(:empty) :accessor query-result)
+   (password :initform (make-array 0
+                                   :element-type 'character
+                                   :adjustable t
+                                   :fill-pointer t)
+             :accessor password))
   (:menu-bar nil)
   (:panes
    (host-label :label :label "Host" :width 50 :max-width 50)
@@ -30,10 +35,12 @@
    (user-label :label :label "User" :width 50 :max-width 50)
    (user :text-field :value "" :width 150 :max-width 150)
    (password-label :label :label "Password" :width 50 :max-width 50)
-   (password :text-field :value "" :width 150 :max-width 150)
+   (password :text-field
+             :value ""
+             :width 150
+             :max-width 150
+             :value-changed-callback #'read-password)
    (query :text-field
-          ;;:value "da6ce65f5e0f6e6d46b15fe39613075aba744eb8e30bfee8dd44d9019a941ea1"
-          ;;:value "099cc5ce99357a7946b52fd36eafdaef1851b6ede17fce0b05843ae26827692a"
           :value "Enter hash or height"
           :activate-callback #'lookup)
    (lookup :push-button
@@ -61,12 +68,25 @@
                   lookup))
               result))))
 
+(defun read-password (pane value)
+  (let* ((frame (clim:pane-frame pane))
+         (lv (length value))
+         (lp (length (password frame))))
+    (cond
+      ((> lv lp)
+       (vector-push-extend (elt value (1- lv)) (password frame)))
+      ((< lv lp)
+       (setf (fill-pointer (password frame)) lv)))
+    (unless (every (lambda (c) (char= #\* c)) value)
+      (setf (clim:gadget-value pane) (make-string lv :initial-element #\*))
+      (clim:redisplay-frame-panes frame))))
+
 (defun lookup (pane)
   (let* ((frame (clim:pane-frame pane))
          (*rpc-host* (clim:gadget-value (clim:find-pane-named frame 'host)))
          (*rpc-port* (clim:gadget-value (clim:find-pane-named frame 'port)))
          (*rpc-user* (clim:gadget-value (clim:find-pane-named frame 'user)))
-         (*rpc-password* (clim:gadget-value (clim:find-pane-named frame 'password)))
+         (*rpc-password* (password frame))
          (query (clim:gadget-value (clim:find-pane-named frame 'query))))
     (multiple-value-bind (height length) (parse-integer query :junk-allowed t)
       (let ((id (if (= length (length query)) height query)))
