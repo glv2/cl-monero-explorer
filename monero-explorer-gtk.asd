@@ -15,5 +15,8 @@
   :depends-on ("cl-cffi-gtk"
                "monero-explorer-common"
                "monero-tools-rpc")
+  :build-operation "program-op"
+  :build-pathname "monero-explorer-gtk"
+  :entry-point "monero-explorer-gtk:gui"
   :components ((:module "src"
                 :components ((:file "gui-gtk")))))

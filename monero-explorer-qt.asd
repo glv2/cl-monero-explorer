@@ -12,10 +12,14 @@
   :version "0.1"
   :author "Guillaume LE VAILLANT"
   :license "GPL-3"
+  :defsystem-depends-on ("qtools")
   :depends-on ("monero-explorer-common"
                "monero-tools-rpc"
                "qtcore"
                "qtgui"
                "qtools")
+  :build-operation "qt-program-op"
+  :build-pathname "monero-explorer-qt"
+  :entry-point "monero-explorer-qt:gui"
   :components ((:module "src"
                 :components ((:file "gui-qt")))))

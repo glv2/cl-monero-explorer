@@ -15,5 +15,8 @@
   :depends-on ("monero-explorer-common"
                "monero-tools-rpc"
                "nodgui")
+  :build-operation "program-op"
+  :build-pathname "monero-explorer-nodgui"
+  :entry-point "monero-explorer-nodgui:gui"
   :components ((:module "src"
                 :components ((:file "gui-nodgui")))))

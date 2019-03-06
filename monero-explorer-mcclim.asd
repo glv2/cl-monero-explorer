@@ -15,5 +15,8 @@
   :depends-on ("mcclim"
                "monero-explorer-common"
                "monero-tools-rpc")
+  :build-operation "program-op"
+  :build-pathname "monero-explorer-mcclim"
+  :entry-point "monero-explorer-mcclim:gui"
   :components ((:module "src"
                 :components ((:file "gui-mcclim")))))
