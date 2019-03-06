@@ -6,6 +6,10 @@
 
 (cl:in-package :asdf-user)
 
+#+(and sbcl sb-core-compression)
+(defmethod perform ((o program-op) (c system))
+  (uiop:dump-image (output-file o c) :executable t :compression t))
+
 (defsystem "monero-explorer-gtk"
   :name "monero-explorer-gtk"
   :description "Blockchain explorer for the Monero crypto-currency (GTK GUI)"
