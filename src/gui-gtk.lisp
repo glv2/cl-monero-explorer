@@ -129,81 +129,77 @@
 
 (defun gui ()
   (gtk:within-main-loop
-   (let ((toplevel (make-instance 'gtk:gtk-window
-                                  :type :toplevel
-                                  :title "Monero Explorer"))
-         (vbox (make-instance 'gtk:gtk-vbox
-                              :margin 5))
-         (hbox1 (make-instance 'gtk:gtk-hbox
-                               :margin-bottom 10))
-         (host-label (make-instance 'gtk:gtk-label
-                                    :label "Host:"
-                                    :margin-right 5))
-         (host (make-instance 'gtk:gtk-entry
-                              :text "127.0.0.1"
-                              :margin-right 5))
-         (port-label (make-instance 'gtk:gtk-label
-                                    :label "Port:"
-                                    :margin-left 5
-                                    :margin-right 5))
-         (port (make-instance 'gtk:gtk-entry
-                              :text "18081"
-                              :margin-right 5))
-         (user-label (make-instance 'gtk:gtk-label
-                                    :label "User:"
-                                    :margin-left 5
-                                    :margin-right 5))
-         (user (make-instance 'gtk:gtk-entry
-                              :text ""
-                              :margin-right 5))
-         (password-label (make-instance 'gtk:gtk-label
-                                        :label "Password:"
-                                        :margin-left 5
-                                        :margin-right 5))
-         (password (make-instance 'gtk:gtk-entry
-                                  :text ""
-                                  :visibility nil))
-         (hbox2 (make-instance 'gtk:gtk-hbox
-                               :margin-bottom 10))
-         (query (make-instance 'gtk:gtk-entry
-                               :text "Enter hash or height"
-                               :expand t
-                               :width-request 500
-                               :margin-right 10))
-         (lookup (make-instance 'gtk:gtk-button
-                                :label "Lookup"
-                                :expand nil
-                                :width-request 50))
-         (scrolled (make-instance 'gtk:gtk-scrolled-window
-                                  :height-request 500))
-         (result (make-instance 'gtk:gtk-text-view
-                                :editable nil
-                                :hexpand t
-                                :vexpand t)))
-     (gobject:g-signal-connect toplevel
-                               "destroy"
-                               (lambda (widget)
-                                 (declare (ignore widget))
-                                 (gtk:leave-gtk-main)))
-     (let ((lkp (lambda (widget)
-                  (declare (ignore widget))
-                  (lookup host port user password query result))))
-       (gobject:g-signal-connect lookup "clicked" lkp)
-       (gobject:g-signal-connect query "activate" lkp))
-     (gtk:gtk-container-add hbox1 host-label)
-     (gtk:gtk-container-add hbox1 host)
-     (gtk:gtk-container-add hbox1 port-label)
-     (gtk:gtk-container-add hbox1 port)
-     (gtk:gtk-container-add hbox1 user-label)
-     (gtk:gtk-container-add hbox1 user)
-     (gtk:gtk-container-add hbox1 password-label)
-     (gtk:gtk-container-add hbox1 password)
-     (gtk:gtk-container-add hbox2 query)
-     (gtk:gtk-container-add hbox2 lookup)
-     (gtk:gtk-container-add vbox hbox1)
-     (gtk:gtk-container-add vbox hbox2)
-     (gtk:gtk-container-add scrolled result)
-     (gtk:gtk-container-add vbox scrolled)
-     (gtk:gtk-container-add toplevel vbox)
-     (gtk:gtk-widget-show-all toplevel)))
+    (let ((toplevel (make-instance 'gtk:gtk-window
+                                   :type :toplevel
+                                   :title "Monero Explorer"))
+          (vbox (make-instance 'gtk:gtk-vbox
+                               :margin 5))
+          (hbox1 (make-instance 'gtk:gtk-hbox
+                                :margin-bottom 10))
+          (host-label (make-instance 'gtk:gtk-label
+                                     :label "Host:"
+                                     :margin-right 5))
+          (host (make-instance 'gtk:gtk-entry
+                               :text "127.0.0.1"
+                               :margin-right 5))
+          (port-label (make-instance 'gtk:gtk-label
+                                     :label "Port:"
+                                     :margin-left 5
+                                     :margin-right 5))
+          (port (make-instance 'gtk:gtk-entry
+                               :text "18081"
+                               :margin-right 5))
+          (user-label (make-instance 'gtk:gtk-label
+                                     :label "User:"
+                                     :margin-left 5
+                                     :margin-right 5))
+          (user (make-instance 'gtk:gtk-entry
+                               :text ""
+                               :margin-right 5))
+          (password-label (make-instance 'gtk:gtk-label
+                                         :label "Password:"
+                                         :margin-left 5
+                                         :margin-right 5))
+          (password (make-instance 'gtk:gtk-entry
+                                   :text ""
+                                   :visibility nil))
+          (hbox2 (make-instance 'gtk:gtk-hbox
+                                :margin-bottom 10))
+          (query (make-instance 'gtk:gtk-entry
+                                :text "Enter hash or height"
+                                :margin-right 10))
+          (lookup (make-instance 'gtk:gtk-button
+                                 :label "Lookup"
+                                 :width-request 50))
+          (scrolled (make-instance 'gtk:gtk-scrolled-window
+                                   :height-request 500
+                                   :width-request 500))
+          (result (make-instance 'gtk:gtk-text-view
+                                 :editable nil)))
+      (gobject:g-signal-connect toplevel
+                                "destroy"
+                                (lambda (widget)
+                                  (declare (ignore widget))
+                                  (gtk:leave-gtk-main)))
+      (let ((lkp (lambda (widget)
+                   (declare (ignore widget))
+                   (lookup host port user password query result))))
+        (gobject:g-signal-connect lookup "clicked" lkp)
+        (gobject:g-signal-connect query "activate" lkp))
+      (gtk:gtk-box-pack-start hbox1 host-label :expand nil :fill nil)
+      (gtk:gtk-box-pack-start hbox1 host)
+      (gtk:gtk-box-pack-start hbox1 port-label :expand nil :fill nil)
+      (gtk:gtk-box-pack-start hbox1 port)
+      (gtk:gtk-box-pack-start hbox1 user-label :expand nil :fill nil)
+      (gtk:gtk-box-pack-start hbox1 user)
+      (gtk:gtk-box-pack-start hbox1 password-label :expand nil :fill nil)
+      (gtk:gtk-box-pack-start hbox1 password)
+      (gtk:gtk-box-pack-start hbox2 query)
+      (gtk:gtk-box-pack-start hbox2 lookup :expand nil :fill nil)
+      (gtk:gtk-container-add scrolled result)
+      (gtk:gtk-box-pack-start vbox hbox1 :expand nil :fill nil)
+      (gtk:gtk-box-pack-start vbox hbox2 :expand nil :fill nil)
+      (gtk:gtk-box-pack-start vbox scrolled)
+      (gtk:gtk-container-add toplevel vbox)
+      (gtk:gtk-widget-show-all toplevel)))
   (gtk:join-gtk-main))
