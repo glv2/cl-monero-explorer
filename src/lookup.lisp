@@ -41,7 +41,7 @@
   (let* ((result (get-transactions (list id) :prune t))
          (transaction (car (geta result :txs))))
     (when transaction
-      (let* ((hex (geta transaction :as-hex))
+      (let* ((hex (geta transaction :pruned-as-hex))
              (bin (hex-string->bytes hex))
              (prefix (deserialize-transaction-prefix bin 0)))
         (list :transaction
