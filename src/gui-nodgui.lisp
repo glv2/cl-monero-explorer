@@ -17,7 +17,7 @@
   (:export #:gui))
 
 (in-package :monero-explorer-nodgui)
-(cl-syntax:use-syntax nodgui::nodgui-event-syntax)
+(named-readtables:in-readtable nodgui.syntax:nodgui-syntax)
 
 
 (defun display-block (result info)
