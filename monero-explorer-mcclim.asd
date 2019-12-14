@@ -18,7 +18,7 @@
   :license "GPL-3"
   :depends-on ("mcclim"
                "monero-explorer-common"
-               "monero-tools-rpc")
+               "monero-rpc")
   :build-operation "program-op"
   :build-pathname "monero-explorer-mcclim"
   :entry-point "monero-explorer-mcclim:gui"

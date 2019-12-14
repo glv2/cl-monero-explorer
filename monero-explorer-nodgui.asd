@@ -17,7 +17,7 @@
   :author "Guillaume LE VAILLANT"
   :license "GPL-3"
   :depends-on ("monero-explorer-common"
-               "monero-tools-rpc"
+               "monero-rpc"
                "nodgui")
   :build-operation "program-op"
   :build-pathname "monero-explorer-nodgui"

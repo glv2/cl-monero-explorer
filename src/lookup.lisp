@@ -7,13 +7,14 @@
 (defpackage :monero-explorer-common
   (:use :cl)
   (:import-from :monero-tools
-                #:bytes->hex-string
-                #:deserialize-transaction-prefix
-                #:geta
-                #:hex-string->bytes)
-  (:import-from :monero-tools-daemon-rpc
+                #:deserialize-transaction-prefix)
+  (:import-from :monero-daemon-rpc
                 #:get-block
                 #:get-transactions)
+  (:import-from :monero-utils
+                #:bytes->hex-string
+                #:geta
+                #:hex-string->bytes)
   (:export #:lookup-block
            #:lookup-transaction))
 
@@ -34,7 +35,7 @@
             (geta block-header :prev-hash)
             (geta block-header :reward)
             (geta block-header :timestamp)
-            (geta result :miner-tx-hash)
+            (geta block-header :miner-tx-hash)
             (geta result :tx-hashes)))))
 
 (defun lookup-transaction (id)

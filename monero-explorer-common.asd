@@ -13,6 +13,7 @@
   :author "Guillaume LE VAILLANT"
   :license "GPL-3"
   :depends-on ("monero-tools"
-               "monero-tools-rpc")
+               "monero-rpc"
+               "monero-utils")
   :components ((:module "src"
                 :components ((:file "lookup")))))

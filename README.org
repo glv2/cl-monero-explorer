@@ -43,4 +43,3 @@ repositories in the /local-projects/ directory of Quicklisp.
 (ql:quickload "monero-explorer-qt")
 (monero-explorer-qt:gui)
 #+END_SRC
-

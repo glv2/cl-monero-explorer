@@ -18,7 +18,7 @@
   :license "GPL-3"
   :depends-on ("ltk"
                "monero-explorer-common"
-               "monero-tools-rpc")
+               "monero-rpc")
   :build-operation "program-op"
   :build-pathname "monero-explorer-ltk"
   :entry-point "monero-explorer-ltk:gui"

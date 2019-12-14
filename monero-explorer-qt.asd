@@ -14,7 +14,7 @@
   :license "GPL-3"
   :defsystem-depends-on ("qtools")
   :depends-on ("monero-explorer-common"
-               "monero-tools-rpc"
+               "monero-rpc"
                "qtcore"
                "qtgui"
                "qtools")

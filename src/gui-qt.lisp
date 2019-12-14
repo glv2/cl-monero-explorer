@@ -9,7 +9,7 @@
   (:import-from :monero-explorer-common
                 #:lookup-block
                 #:lookup-transaction)
-  (:import-from :monero-tools-rpc
+  (:import-from :monero-rpc
                 #:*rpc-host*
                 #:*rpc-password*
                 #:*rpc-port*
