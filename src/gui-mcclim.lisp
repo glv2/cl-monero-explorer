@@ -43,6 +43,13 @@
    (query :text-field
           :value "Enter hash or height"
           :activate-callback #'lookup)
+   (paste :push-button
+          :max-width 50
+          :label "Paste"
+          :activate-callback (lambda (gadget)
+                               (declare (ignore gadget))
+                               (clim:execute-frame-command clim:*application-frame*
+                                                           '(com-paste))))
    (lookup :push-button
            :max-width 50
            :label "Lookup"
@@ -65,6 +72,7 @@
               (clim:spacing (:thickness 5)
                 (clim:horizontally (:width 950 :spacing 5)
                   (clim:spacing (:thickness 5) query)
+                  paste
                   lookup))
               result))))
 
@@ -106,97 +114,120 @@
                        nonce prev-hash reward timestamp
                        miner-tx-hash tx-hashes)
       info
-    (let* ((text (format nil
-                         "~%Block: ~a~
-                          ~%Height: ~d~
-                          ~%Previous block: ~a~
-                          ~%Version: ~d.~d~
-                          ~%Size: ~d~
-                          ~%Nonce: ~d~
-                          ~%Timestamp: ~d~
-                          ~%Reward: ~d~
-                          ~2%Miner transaction:~2%~4t~a~
-                          ~2%Transactions:~2%~{~4t~a~%~}"
-                         hash height prev-hash major-version minor-version
-                         block-size nonce timestamp reward miner-tx-hash
-                         tx-hashes)))
-      (clim:draw-text* pane text 2 0))))
+    (let ((*standard-output* pane))
+      (terpri)
+      (write-string "Block: ")
+      (clim:present hash 'string)
+      (fresh-line)
+      (write-string "Height: ")
+      (clim:present (format nil "~d" height) 'string)
+      (fresh-line)
+      (write-string "Previous block: ")
+      (clim:present prev-hash 'string)
+      (fresh-line)
+      (format t
+              "Version: ~d.~d~
+               ~%Size: ~d~
+               ~%Nonce: ~d~
+               ~%Timestamp: ~d~
+               ~%Reward: ~d~%"
+              major-version minor-version block-size nonce
+              timestamp reward)
+      (terpri)
+      (write-string "Miner transaction: ")
+      (format t "~2%~4t")
+      (clim:present miner-tx-hash 'string)
+      (format t "~2%Transactions:~2%")
+      (dolist (tx-hash tx-hashes)
+        (format t "~4t")
+        (clim:present tx-hash 'string)
+        (fresh-line)))))
 
 (defun display-transaction (pane info)
   (destructuring-bind (block-height block-timestamp double-spend-seen
                        in-pool version unlock-time inputs outputs extra)
       info
-    (flet ((print-input (input)
-             (destructuring-bind (amount key-offsets key-image) input
-               (format nil
-                       "~%~4tAmount: ~d~
-                        ~%~4tKey offsets: ~{~a~^, ~}~
-                        ~%~4tKey image: ~a"
-                       amount key-offsets key-image)))
-           (print-output (output)
-             (destructuring-bind (amount key) output
-               (format nil
-                       "~%~4tAmount: ~d~
-                        ~%~4tKey: ~a"
-                       amount key)))
-           (print-extra (extra)
-             (destructuring-bind (transaction-public-key
-                                  additional-public-keys
-                                  payment-id)
-                 extra
-               (concatenate 'string
-                            (when (plusp (length transaction-public-key))
-                              (format nil
-                                      "~%Public key: ~a"
-                                      transaction-public-key))
-                            (when additional-public-keys
-                              (format nil
-                                      "~%Additional-public-keys:~
-                                       ~%~{~4t~a~^~%~}"
-                                      additional-public-keys))
-                            (when (plusp (length payment-id))
-                              (format nil
-                                      "~%Payment ID: ~a"
-                                      payment-id))))))
-      (let ((text (format nil
-                          "~%Block height: ~d~
-                           ~%Block timestamp: ~d~
-                           ~%Version: ~d~
-                           ~%In pool: ~:[No~;Yes~]~
-                           ~%Double spend seen: ~:[No~;Yes~]~
-                           ~%Unlock time: ~d~
-                           ~a~
-                           ~2%Inputs: ~d~
-                           ~{~a~%~}~
-                           ~%Outputs: ~d~
-                           ~{~a~%~}"
-                          block-height block-timestamp version in-pool
-                          double-spend-seen unlock-time
-                          (print-extra extra)
-                          (length inputs)
-                          (mapcar #'print-input inputs)
-                          (length outputs)
-                          (mapcar #'print-output outputs))))
-        (clim:draw-text* pane text 2 0)))))
+    (let ((*standard-output* pane))
+      (flet ((print-input (input)
+               (destructuring-bind (amount key-offsets key-image) input
+                 (format nil
+                         "~%~4tAmount: ~d~
+                          ~%~4tKey offsets: ~{~a~^, ~}~
+                          ~%~4tKey image: ~a"
+                         amount key-offsets key-image)))
+             (print-output (output)
+               (destructuring-bind (amount key) output
+                 (format nil
+                         "~%~4tAmount: ~d~
+                          ~%~4tKey: ~a"
+                         amount key)))
+             (print-extra (extra)
+               (destructuring-bind (transaction-public-key
+                                    additional-public-keys
+                                    payment-id)
+                   extra
+                 (concatenate 'string
+                              (when (plusp (length transaction-public-key))
+                                (format nil
+                                        "~%Public key: ~a"
+                                        transaction-public-key))
+                              (when additional-public-keys
+                                (format nil
+                                        "~%Additional-public-keys:~
+                                         ~%~{~4t~a~^~%~}"
+                                        additional-public-keys))
+                              (when (plusp (length payment-id))
+                                (format nil
+                                        "~%Payment ID: ~a"
+                                        payment-id))))))
+        (terpri)
+        (write-string "Block height: ")
+        (clim:present (format nil "~d" block-height) 'string)
+        (fresh-line)
+        (format t
+                "Block timestamp: ~d~
+                 ~%Version: ~d~
+                 ~%In pool: ~:[No~;Yes~]~
+                 ~%Double spend seen: ~:[No~;Yes~]~
+                 ~%Unlock time: ~d~
+                 ~a~
+                 ~2%Inputs: ~d~
+                 ~{~a~%~}~
+                 ~%Outputs: ~d~
+                 ~{~a~%~}"
+                block-timestamp version in-pool
+                double-spend-seen unlock-time
+                (print-extra extra)
+                (length inputs)
+                (mapcar #'print-input inputs)
+                (length outputs)
+                (mapcar #'print-output outputs))))))
 
 (defun display-not-found (pane info)
   (destructuring-bind (error-block error-transaction)
       info
-    (let ((text (format nil
-                        "~%No information found~
-                         ~%~%Block request: ~a~
-                         ~%~%Transaction request: ~a"
-                        error-block error-transaction)))
-      (clim:draw-text* pane text 2 0))))
+    (format pane
+            "~%No information found~
+             ~%~%Block request: ~a~
+             ~%~%Transaction request: ~a"
+            error-block error-transaction)))
 
 (defun display-result (frame stream)
-  (declare (ignore stream))
-  (let* ((info (query-result frame))
-         (result (clim:find-pane-named frame 'result)))
+  (let ((info (query-result frame)))
     (case (car info)
-      ((:block) (display-block result (cdr info)))
-      ((:transaction) (display-transaction result (cdr info)))
-      ((:error) (display-not-found result (cdr info))))))
+      ((:block) (display-block stream (cdr info)))
+      ((:transaction) (display-transaction stream (cdr info)))
+      ((:error) (display-not-found stream (cdr info))))))
+
+(clim:define-presentation-action copy-string
+    (string nil explorer-frame :gesture :select)
+    (object)
+  (clim-extensions:publish-selection *standard-output* :clipboard object 'string))
+
+(define-explorer-frame-command (com-paste :menu nil) ()
+  (let ((query (clim:find-pane-named clim:*application-frame* 'query)))
+    (setf (clim:gadget-value query)
+          (clim-extensions:request-selection *standard-output* :clipboard t))))
 
 (defun gui ()
   (let ((frame (clim:make-application-frame 'explorer-frame
