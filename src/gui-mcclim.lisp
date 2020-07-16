@@ -1,5 +1,5 @@
 ;;;; This file is part of monero-explorer
-;;;; Copyright 2019 Guillaume LE VAILLANT
+;;;; Copyright 2019-2020 Guillaume LE VAILLANT
 ;;;; Distributed under the GNU GPL v3 or later.
 ;;;; See the file LICENSE for terms of use and distribution.
 
@@ -224,12 +224,21 @@
     (object)
   (clim-extensions:publish-selection *standard-output* :clipboard object 'string))
 
+(clim:define-presentation-action lookup-string
+    (string nil explorer-frame :gesture :select :priority 1)
+    (object)
+  (let ((query (clim:find-pane-named clim:*application-frame* 'query)))
+    (setf (clim:gadget-value query) object)
+    (lookup query)))
+
 (define-explorer-frame-command (com-paste :menu nil) ()
   (let ((query (clim:find-pane-named clim:*application-frame* 'query)))
     (setf (clim:gadget-value query)
           (clim-extensions:request-selection *standard-output* :clipboard t))))
 
-(defun gui ()
+(defun gui (&optional new-process)
   (let ((frame (clim:make-application-frame 'explorer-frame
                                             :pretty-name "Monero Explorer")))
-    (clim:run-frame-top-level frame)))
+    (if new-process
+        (clim-sys:make-process (lambda () (clim:run-frame-top-level frame)))
+        (clim:run-frame-top-level frame))))
