@@ -43,13 +43,14 @@
    (query :text-field
           :value "Enter hash or height"
           :activate-callback #'lookup)
+   (copy :push-button
+         :max-width 50
+         :label "Copy"
+         :activate-callback #'copy-query)
    (paste :push-button
           :max-width 50
           :label "Paste"
-          :activate-callback (lambda (gadget)
-                               (declare (ignore gadget))
-                               (clim:execute-frame-command clim:*application-frame*
-                                                           '(com-paste))))
+          :activate-callback #'paste-query)
    (lookup :push-button
            :max-width 50
            :label "Lookup"
@@ -72,6 +73,7 @@
               (clim:spacing (:thickness 5)
                 (clim:horizontally (:width 950 :spacing 5)
                   (clim:spacing (:thickness 5) query)
+                  copy
                   paste
                   lookup))
               result))))
@@ -108,6 +110,18 @@
                     (setf (query-result frame) info)
                     (setf (query-result frame) (list :error error1 error2))))))
         (clim:redisplay-frame-pane frame 'result)))))
+
+(defun copy-query (pane)
+  (declare (ignore pane))
+  (let ((query (clim:find-pane-named clim:*application-frame* 'query)))
+    (clim-extensions:publish-selection *standard-output*
+                                       :clipboard
+                                       (clim:gadget-value query)
+                                       'string)))
+
+(defun paste-query (pane)
+  (declare (ignore pane))
+  (clim:execute-frame-command clim:*application-frame* '(com-paste)))
 
 (defun display-block (pane info)
   (destructuring-bind (block-size hash height major-version minor-version
