@@ -1,12 +1,14 @@
 #+TITLE: Monero explorer
 
+The active repository is at https://codeberg.org/glv/cl-monero-explorer
+
 This project contains several little GUIs to display some information about the
 [[https://www.getmonero.org][Monero]] blocks and transactions. It requires a running Monero daemon that can
 receive and answer to RPC requests.
 
 * Installation
 
-First, install [[https://www.quicklisp.org][Quicklisp]]. Then, put the [[https://github.com/glv2/cl-monero-tools][cl-monero-tools]] and [[https://github.com/glv2/cl-monero-explorer][cl-monero-explorer]]
+First, install [[https://www.quicklisp.org][Quicklisp]]. Then, put the [[https://codeberg.org/glv/cl-monero-tools][cl-monero-tools]] and [[https://github.com/glv2/cl-monero-explorer][cl-monero-explorer]]
 repositories in the /local-projects/ directory of Quicklisp.
 
 * GTK GUI
